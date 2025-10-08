@@ -23,17 +23,15 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
-    default='skill-swap-fqa6hdhpfdb8g6hj.westeurope-01.azurewebsites.net,localhost,127.0.0.1',
+    default='skill-swap-fqa6hdhpfdb8g6hj.westeurope-01.azurewebsites.net',
     cast=Csv()
 )
 
-CSRF_TRUSTED_ORIGINS = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='https://skill-swap-fqa6hdhpfdb8g6hj.westeurope-01.azurewebsites.net',
-    cast=Csv()
-)
+if isinstance(ALLOWED_HOSTS, bool):
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS]
+CORS_ALLOWED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS]
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic',
+    'corsheaders',
     'widget_tweaks',
     'user_auth',
     'skill',
@@ -53,6 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
